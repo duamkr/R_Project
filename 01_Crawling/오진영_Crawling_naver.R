@@ -1,7 +1,7 @@
 library(rvest)
 library(dplyr)
 library(stringr)
-
+library(tidytext)
 trim <- function(x) gsub("^\\s+|\\s+$", "", x)
 
 base_url <- 'https://movie.naver.com'

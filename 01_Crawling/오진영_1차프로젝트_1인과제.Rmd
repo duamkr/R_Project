@@ -1,0 +1,36 @@
+---
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("wordcloud")
+library("RColorBrewer")
+library("KoNLP")
+```
+
+## 어벤져스 : 엔드게임 워드클라우드
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+```{r}
+setwd("D:/workspace/R_Project/01_Crawling")
+data <- readLines("a1.txt")
+head(data)
+useSejongDic()
+data1 <- sapply(data, extractNoun, USE.NAMES=F)
+head(unlist(data1), 30)
+data1 <- gsub('\\d+','',data1)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
