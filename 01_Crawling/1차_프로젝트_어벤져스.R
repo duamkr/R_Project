@@ -1,9 +1,11 @@
 install.packages("wordcloud")
 install.packages("RColorBrewer")
 install.packages("KoNLP")
+install.packages("wordcloud2")
 library(wordcloud)
 library(RColorBrewer)
 library(KoNLP)
+library(wordcloud2)
 
 trim <- function(x) gsub("^\\s+|\\s+$", "", x)
 

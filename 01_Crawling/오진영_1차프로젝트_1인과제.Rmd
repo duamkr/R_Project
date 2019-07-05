@@ -3,34 +3,107 @@
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library("wordcloud")
-library("RColorBrewer")
-library("KoNLP")
+library(wordcloud2)
+library(RColorBrewer)
+library(KoNLP)
+library(stringr)
+library(dplyr)
+library(ggplot2)
+useSejongDic()
+setwd("D:/workspace/R_Project/01_Crawling")
 ```
 
 ## 어벤져스 : 엔드게임 워드클라우드
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+ 2012년 4월 26일 개봉한 영화 <어벤져스>가 역대 최고의 슈퍼히어로들이 총 출동한 사상 최강의 블록버스터로 뜨거운 관심을 받았다. 어벤져스에 앞서 개봉한 마블 히어로들을 주인공으로 한 영화 <아이언맨> 시리즈와 <인크레더블 헐크>, <토르: 천둥의 신>, <퍼스트 어벤져>에 등장했던 슈퍼히어로들이 <어벤져스>에서 최초로 함께 뭉쳐 지금껏 본 적 없는 팀 ‘어벤져스’를 결성하게 되는 것. 어벤져스는 우리나라에서만 7,075,607명의 관람객이 영화를 선택하였고, 이 흥행에 따라 후속작인 어벤져스:시빌워, 어벤져스:인피니티워, 그리고 최근에 개봉한 어벤져스:엔드게임까지 대 마블시대의 시작을 알리는 영화가 되었다.
 
 
 ```{r}
-setwd("D:/workspace/R_Project/01_Crawling")
+
 data <- readLines("a1.txt")
-head(data)
-useSejongDic()
+
 data1 <- sapply(data, extractNoun, USE.NAMES=F)
-head(unlist(data1), 30)
-data1 <- gsub('\\d+','',data1)
+data2 <- unlist(data1)
+data3 <- Filter(function(x) {nchar(x) >= 2}, data2)
+data3 <- Filter(function(x) {nchar(x) <= 6}, data3)
+
+data4 <- str_replace_all(data3, "[^[:alpha:]]","''")
+data4 <- gsub('\\d+','',data4)
+data4 <- gsub(' ','',data4)
+data4 <- gsub("'",'',data4)
+data4 <- gsub('ㅋ','',data4)
+data4 <- gsub('ㅎ','',data4)
+
+gsub_text <- readLines("avengers_gsub.txt")
+cnt_txt <- length(gsub_text)
+i <- 1
+for (i in 1:cnt_txt) {
+  data5 <- gsub((gsub_text[i]),'',data4)
+}
+data5 <- gsub('영화','',data5)
+data5 <- gsub('진짜','',data5)
+data5 <- gsub('완전','',data5)
+data5 <- gsub('중간','',data5)
+data5 <- gsub('이거','',data5)
+data5 <- gsub('하게','',data5)
+
+write(unlist(data5),'avengers_filter.txt')
+re_avengers <- read.table("avengers_filter.txt")
+wordcount <- table(re_avengers)
+wordcount2 <-head(sort(wordcount, decreasing = T),200)
+wordcloud2(data = wordcount2,color = "random-light", backgroundColor = "grey")
+
 ```
 
-## Including Plots
+## 어벤져스 시리즈별 분석 
 
-You can also embed plots, for example:
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+
+```{r}
+aven1 <- read.csv("avengers_1.csv", header =T)
+aven2 <- read.csv("avengers_2.csv", header =T)
+aven3 <- read.csv("avengers_3.csv", header =T)
+aven4 <- read.csv("avengers_4.csv", header =T)
+str(aven1)
+aven_1_n <- cbind(aven1,data.frame(series='AVENGERS1'))
+aven_2_n <- cbind(aven2,data.frame(series='AVENGERS2'))
+aven_3_n <- cbind(aven3,data.frame(series='AVENGERS3'))
+aven_4_n <- cbind(aven4,data.frame(series='AVENGERS4'))
+
+View(day_1)
+
+day_1 <- aven_1_n %>%
+  mutate(days=str_sub(w_date,1,10)) %>%
+  arrange(days)
+
+day_2 <- aven_2_n %>%
+  mutate(days=str_sub(w_date,1,10)) %>%
+  arrange(days)
+
+day_3<- aven_3_n %>%
+  mutate(days=str_sub(w_date,1,10)) %>%
+  arrange(days)
+
+day_4 <- aven_4_n %>%
+  mutate(days=str_sub(w_date,1,10)) %>%
+  arrange(days)
+
+ggplot(day_1, aes(x=days, y= score)) +
+  geom_point()
+
+test_1 <- aven_1_n %>%
+  mutate(time=str_sub(w_date,12,13)) %>%
+  group_by(time) %>%
+  summarise(time_mean = round(mean(score),1)) %>%
+  arrange(time)
+
+View(test_1 )
+
+ggplot(test_1, aes(x=time, y= time_mean, fill=time_mean)) +
+  geom_col(stat = 'identity')
+
+
+
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
