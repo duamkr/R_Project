@@ -1,5 +1,7 @@
 install.packages("rvest")
 install.packages("writexl")
+install.packages("wordcloud2")
+install.packages("KoNLP")
 library(rvest)
 library(dplyr)
 library(stringr)

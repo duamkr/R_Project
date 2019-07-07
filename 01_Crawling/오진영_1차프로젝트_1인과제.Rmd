@@ -9,8 +9,9 @@ library(KoNLP)
 library(stringr)
 library(dplyr)
 library(ggplot2)
+library()
 useSejongDic()
-setwd("D:/workspace/R_Project/01_Crawling")
+setwd("E:/workspace/R/R-Project/01_Crawling")
 ```
 
 ## 어벤져스 : 엔드게임 워드클라우드
@@ -70,7 +71,6 @@ aven_2_n <- cbind(aven2,data.frame(series='AVENGERS2'))
 aven_3_n <- cbind(aven3,data.frame(series='AVENGERS3'))
 aven_4_n <- cbind(aven4,data.frame(series='AVENGERS4'))
 
-View(day_1)
 
 day_1 <- aven_1_n %>%
   mutate(days=str_sub(w_date,1,10)) %>%
@@ -88,21 +88,41 @@ day_4 <- aven_4_n %>%
   mutate(days=str_sub(w_date,1,10)) %>%
   arrange(days)
 
-ggplot(day_1, aes(x=days, y= score)) +
-  geom_point()
 
-test_1 <- aven_1_n %>%
+time_1 <- aven_1_n %>%
   mutate(time=str_sub(w_date,12,13)) %>%
   group_by(time) %>%
   summarise(time_mean = round(mean(score),1)) %>%
   arrange(time)
+time_1$time <- as.numeric(time_1$time)
+str(time_1)
 
-View(test_1 )
+ggplot(time_1, aes(x=time, y= time_mean)) +
+  geom_point(size = 1, color ='red') + 
+  geom_line(color = 'dark gray') +
+  ggtitle("어벤져스 시간대별 평점") +
+  theme(plot.title = element_text(face='bold', size=18, hjust=0.5)) +
+  labs(x = '시간대별(h)', y = '평균 평점') 
 
-ggplot(test_1, aes(x=time, y= time_mean, fill=time_mean)) +
-  geom_col(stat = 'identity')
 
 
+day_score_aven1 <-day_1 %>%
+  group_by(days) %>%
+  summarise(day_mean = round(mean(score),1)) %>%
+  arrange(days)
+
+test2 <- day_score_aven1 %>%
+  mutate(years =paste0(str_sub(days,1,4),"-",str_sub(days,6,7),"-",str_sub(days,9,10)))
+test2$years <-as.Date(test2$years)
+
+ggplot(test2, aes(x=years, y= day_mean)) +
+  geom_point(size = 0.5, color = 'red') +
+  geom_line(color = 'dark gray') +
+  ggtitle("어벤져스 1 / 날짜별 평점") +
+  theme(plot.title = element_text(face='bold', size=18, hjust=0.5)) +
+  labs(x = '날짜별(day)', y = '평균 평점') 
+
+  #scale_x_continuous(breaks = c('2012.05.20':'2019.06.25'))
 
 ```
 
