@@ -9,18 +9,22 @@ library(KoNLP)
 library(stringr)
 library(dplyr)
 library(ggplot2)
-library()
+library(extrafont)
+library(lawstat)
 useSejongDic()
-setwd("E:/workspace/R/R-Project/01_Crawling")
+setwd("D:/workspace/R_Project/01_Crawling")
 ```
 
 ## 어벤져스 : 엔드게임 워드클라우드
 
- 2012년 4월 26일 개봉한 영화 <어벤져스>가 역대 최고의 슈퍼히어로들이 총 출동한 사상 최강의 블록버스터로 뜨거운 관심을 받았다. 어벤져스에 앞서 개봉한 마블 히어로들을 주인공으로 한 영화 <아이언맨> 시리즈와 <인크레더블 헐크>, <토르: 천둥의 신>, <퍼스트 어벤져>에 등장했던 슈퍼히어로들이 <어벤져스>에서 최초로 함께 뭉쳐 지금껏 본 적 없는 팀 ‘어벤져스’를 결성하게 되는 것. 어벤져스는 우리나라에서만 7,075,607명의 관람객이 영화를 선택하였고, 이 흥행에 따라 후속작인 어벤져스:시빌워, 어벤져스:인피니티워, 그리고 최근에 개봉한 어벤져스:엔드게임까지 대 마블시대의 시작을 알리는 영화가 되었다.
+ 2012년 4월 26일 개봉한 영화 <어벤져스>가 역대 최고의 슈퍼히어로들이 총 출동한 사상 최강의 블록버스터로 뜨거운 관심을 받았다. 어벤져스에 앞서 개봉한 마블 히어로들을 주인공으로 한 영화 <아이언맨> 시리즈와 <인크레더블 헐크>, <토르: 천둥의 신>, <퍼스트 어벤져>에 등장했던 슈퍼히어로들이 <어벤져스>에서 최초로 함께 뭉쳐 지금껏 본 적 없는 팀 ‘어벤져스’를 결성하게 되는 것. 어벤져스는 우리나라에서만 7,075,607명의 관람객이 영화를 선택하였고, 이 흥행에 따라 후속작인 어벤져스:에이지오브울트론, 어벤져스:인피니티워, 그리고 최근에 개봉한 어벤져스:엔드게임까지 대 마블시대의 시작을 알리는 영화가 되었다.
 
 
 ```{r}
+```
 
+
+```{r}
 data <- readLines("a1.txt")
 
 data1 <- sapply(data, extractNoun, USE.NAMES=F)
@@ -53,11 +57,14 @@ re_avengers <- read.table("avengers_filter.txt")
 wordcount <- table(re_avengers)
 wordcount2 <-head(sort(wordcount, decreasing = T),200)
 wordcloud2(data = wordcount2,color = "random-light", backgroundColor = "grey")
-
 ```
 
-## 어벤져스 시리즈별 분석 
 
+```{r}
+```
+
+
+## 어벤져스 시리즈별 분석 
 
 
 ```{r}
@@ -72,30 +79,13 @@ aven_3_n <- cbind(aven3,data.frame(series='AVENGERS3'))
 aven_4_n <- cbind(aven4,data.frame(series='AVENGERS4'))
 
 
-day_1 <- aven_1_n %>%
-  mutate(days=str_sub(w_date,1,10)) %>%
-  arrange(days)
-
-day_2 <- aven_2_n %>%
-  mutate(days=str_sub(w_date,1,10)) %>%
-  arrange(days)
-
-day_3<- aven_3_n %>%
-  mutate(days=str_sub(w_date,1,10)) %>%
-  arrange(days)
-
-day_4 <- aven_4_n %>%
-  mutate(days=str_sub(w_date,1,10)) %>%
-  arrange(days)
-
-
+# 어벤져스1 시간대별 평점 그래프 
 time_1 <- aven_1_n %>%
   mutate(time=str_sub(w_date,12,13)) %>%
   group_by(time) %>%
   summarise(time_mean = round(mean(score),1)) %>%
   arrange(time)
 time_1$time <- as.numeric(time_1$time)
-str(time_1)
 
 ggplot(time_1, aes(x=time, y= time_mean)) +
   geom_point(size = 1, color ='red') + 
@@ -105,6 +95,12 @@ ggplot(time_1, aes(x=time, y= time_mean)) +
   labs(x = '시간대별(h)', y = '평균 평점') 
 
 
+
+# 어벤져스1 일자별 평점 분석
+
+day_1 <- aven_1_n %>%
+  mutate(days=str_sub(w_date,1,10)) %>%
+  arrange(days)
 
 day_score_aven1 <-day_1 %>%
   group_by(days) %>%
@@ -122,8 +118,102 @@ ggplot(test2, aes(x=years, y= day_mean)) +
   theme(plot.title = element_text(face='bold', size=18, hjust=0.5)) +
   labs(x = '날짜별(day)', y = '평균 평점') 
 
-  #scale_x_continuous(breaks = c('2012.05.20':'2019.06.25'))
+
+# 어벤져스 ~ 어벤져스:엔드게임 까지 시리즈별 비교를 위한 간단한 테이블 생성(평점/댓글 크롤링 데이터 사용)
+people <- c(7075607)
+review <- nrow(aven_1_n)
+score <- aven_1_n %>%
+  summarise(mean = round(mean(score),1))
+series <- 'avengers1'
+aven1_table <- data.frame(people, review, score, series)
+ 
+
+people <- c(10494840)
+review <- nrow(aven_2_n)
+score <- aven_2_n %>%
+  summarise(mean = round(mean(score),1))
+series <- 'avengers2'
+aven2_table <- data.frame(people, review, score, series)
+
+
+people <- c(11212710)
+review <- nrow(aven_3_n)
+score <- aven_3_n %>%
+  summarise(mean = round(mean(score),1))
+series <- 'avengers3'
+aven3_table <- data.frame(people, review, score, series)
+
+nrow(aven_4_n)
+people <- c(13922090)
+review <-nrow(aven_4_n)
+score <- aven_4_n %>%
+  summarise(mean = round(mean(score),1))
+series <- 'avengers4'
+aven4_table <- data.frame(people, review, score, series)
+
+all_aven <- rbind(aven1_table, aven2_table, aven3_table, aven4_table)
+View(all_aven)
+par(mfrow=c(1,3))
+ggplot(all_aven, aes(x=series, y= people, fill = series)) +
+  geom_bar(stat = 'identity', size = 0.5) +
+  geom_text(aes(label=people), size=3.5, hjust=0.5, vjust=1.25, color = '#FFFFFF') +
+  ggtitle("어벤져스 시리즈별 누적 관람객") +
+  theme(plot.title = element_text(face='bold', size=12.5, hjust=0.5)) +
+  labs(x = '시리즈', y = '누적 관람객') 
+
+ggplot(all_aven, aes(x=series, y= review, fill = series)) +
+  geom_col() + 
+  geom_text(aes(label=review), size=3.5, hjust=0.5, vjust=1.25, color = '#FFFFFF') +
+  ggtitle("어벤져스 시리즈별 누적 댓글 수") +
+  scale_y_continuous(labels = scales::comma) +
+  theme(plot.title = element_text(face='bold', size=12.5, hjust=0.5)) +
+  labs(x = '시리즈', y = '누적 평점/댓글 수') 
+
+ggplot(all_aven, aes(x=series, y= mean, fill = series)) +
+  geom_col() +
+  ggtitle("어벤져스 시리즈별 누적 평균 평점") +
+  scale_y_continuous(labels = scales::comma) +
+  geom_text(aes(label=mean), size=3.5, hjust=0.5, vjust=1.25, color = '#FFFFFF') +
+  theme(plot.title = element_text(face='bold', size=12.5, hjust=0.5)) +
+  labs(x = '시리즈', y = '누적 평점') 
 
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+# 네이버 일자별 댓글수가 일자별 관람객에 영향을 미치는지에 대한 분석(개봉일로 부터 30일)
+kobis_avengers <- read.csv("ect/KOBIS_AVEN_30.csv", header = T)
+str(kobis_avengers)
+par(mfrow = c(1,3))
+ggplot(kobis_avengers,aes(day, acc_people, color = series)) +
+  geom_line(linetype = 6, size = 1) +
+  scale_y_continuous(labels = scales::comma) +
+  ggtitle("어벤져스1~4, 누적관람객(개봉 ~30일)") +
+  theme(plot.title = element_text(face='bold', size=12.5, hjust=0.5)) +
+  labs(x = '개봉일~30일', y = '누적 관람객') 
+
+ggplot(kobis_avengers,aes(day, people, color = series)) +
+  geom_line(linetype = 6, size = 1) +
+  scale_y_continuous(labels = scales::comma) +
+  ggtitle("어벤져스1~4, 일자별 관람객(개봉 ~30일)") +
+  theme(plot.title = element_text(face='bold', size=12.5, hjust=0.5)) +
+  labs(x = '개봉일~30일', y = '일자별 관람객') 
+  #geom_text(aes(label=acc_people), size=3.5, hjust=0.5, vjust=1.25, color = 'gray') 
+
+ggplot(kobis_avengers,aes(day, daet, color = series)) +
+  geom_line(linetype = 6, size = 1) +
+  scale_y_continuous(labels = scales::comma) +
+  ggtitle("어벤져스1~4, 일자별 naver 댓글수 (개봉 ~30일)") +
+  theme(plot.title = element_text(face='bold', size=12.5, hjust=0.5)) +
+  labs(x = '개봉일~30일', y = '일자별 naver 댓글 수') 
+
+```
+```{r}
+# 우리나라의 최대 포털 사이트인 네이버에서 영화의 댓글이 실제 영화 관람객 수와 영향이 있는가?
+var.test(kobis_avengers$people ~ kobis_avengers$daet)
+levene.test(kobis_avengers$people , kobis_avengers$daet)
+
+```
+
+
+
