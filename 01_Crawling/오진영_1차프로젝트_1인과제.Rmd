@@ -12,7 +12,7 @@ library(ggplot2)
 library(extrafont)
 library(lawstat)
 useSejongDic()
-setwd("D:/workspace/R_Project/01_Crawling")
+setwd("E:/workspace/R/R-Project/01_Crawling")
 ```
 
 ## 어벤져스 : 엔드게임 워드클라우드
@@ -208,11 +208,26 @@ ggplot(kobis_avengers,aes(day, daet, color = series)) +
   labs(x = '개봉일~30일', y = '일자별 naver 댓글 수') 
 
 ```
+
+
 ```{r}
 # 우리나라의 최대 포털 사이트인 네이버에서 영화의 댓글이 실제 영화 관람객 수와 영향이 있는가?
-var.test(kobis_avengers$people ~ kobis_avengers$daet)
+# H0 = 일자별 네이버 댓글수와 총 영화 관람객 수는 서로 영향이 있다. 
+# H1 = 일자별 네이버 댓글수는 총 영화 관람객 수와 관계가 없다.
+
+# 두 변수의 정규성 확인
+qqnorm(kobis_avengers$people) ; qqline(kobis_avengers$people)
+qqnorm(kobis_avengers$daet) ; qqline(kobis_avengers$daet)
+
+# 두 변수 모두 정규성이 없음
+
+# 두 변수의 등분산성 확인(
+# Robust Brown-Forsythe 방법은 중앙값(median)을 기준으로 동질성 검정 수행.(분포상 평균값이 집단을 대표하지 못한다고 판단되는 경우)
+
 levene.test(kobis_avengers$people , kobis_avengers$daet)
 
+# p-value > 0.05 이므로 두 집단의 분산이 다르므로 대립가설을 지지합니다.
+# 따라서 네이버 일자별 네이버 댓글수는 전체 영화관람객수와 연관이 없다.
 ```
 
 
